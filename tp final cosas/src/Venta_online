@@ -1,0 +1,41 @@
+import java.io.Serializable;
+
+public class Venta_online extends Venta{
+    private Consumidor usuario_comprador;
+    private Tipo_entrega tipo_entrega;
+
+    public Venta_online(Caja caja, Medio_de_pago medio) {
+        super(caja, medio);
+
+        if (medio != Medio_de_pago.DEBITO) {
+            throw new IllegalArgumentException("Las ventas online solo pueden ser con débito");
+        }
+    }
+
+    @Override
+    public void finalizar_venta() {
+        super.finalizar_venta();
+        if(tipo_entrega==Tipo_entrega.RETIRO_SUCURSAL){
+            
+            //seguir
+            
+        }
+    }
+
+    @Override
+    public void aplicar_descuento() {
+        int descuento=0;
+        if( usuario_comprador.getCantidad_compras()==1){
+            descuento=20;
+        }
+        else if( usuario_comprador.getCantidad_compras()>50){
+            descuento=10;
+        }
+        else if( usuario_comprador.getCantidad_compras()>100){
+            descuento=20;
+        }
+
+        double subtotal = getSubtotal();
+        setTotal(subtotal - (subtotal * descuento));
+    }
+}
