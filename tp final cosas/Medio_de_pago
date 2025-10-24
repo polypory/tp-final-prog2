@@ -1,0 +1,4 @@
+public enum Medio_de_pago {
+    DEBITO,
+    EFECTIVO,
+}
