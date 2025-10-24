@@ -1,0 +1,161 @@
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+
+public abstract class Venta{
+
+    //atributos id
+    private int id_venta;
+    private static int incremental_venta=1;
+    //atributos venta
+    private ArrayList<Libro> productos;
+    private LocalDateTime hora_y_fecha;
+    private double subtotal;
+    private double total;
+    private Medio_de_pago medio;
+    private Estado_venta estado;
+    private Caja caja;
+
+
+    public Venta(Caja caja, Medio_de_pago medio) {  // ID único
+        this.hora_y_fecha = LocalDateTime.now();
+        this.estado = Estado_venta.EN_PROCESO;
+        this.productos = new ArrayList<>();
+        this.caja = caja;
+        this.medio = medio;
+        this.subtotal = 0;
+        this.total = 0;
+    }
+
+    public int getId_venta() {
+        return id_venta;
+    }
+
+    public ArrayList<Libro> getProductos() {
+        return productos;
+    }
+
+    public void setProductos(ArrayList<Libro> productos) {
+        this.productos = productos;
+    }
+
+    public LocalDateTime getHora_y_fecha() {
+        return hora_y_fecha;
+    }
+
+    public void setHora_y_fecha(LocalDateTime hora_y_fecha) {
+        this.hora_y_fecha = hora_y_fecha;
+    }
+
+    public double getSubtotal() {
+        return subtotal;
+    }
+
+    public void setSubtotal(double subtotal) {
+        this.subtotal = subtotal;
+    }
+
+    public double getTotal() {
+        return total;
+    }
+
+    public void setTotal(double total) {
+        this.total = total;
+    }
+
+    public Medio_de_pago getMedio() {
+        return medio;
+    }
+
+    public void setMedio(Medio_de_pago medio) {
+        this.medio = medio;
+    }
+
+    public Estado_venta getEstado() {
+        return estado;
+    }
+
+    public void setEstado(Estado_venta estado) {
+        this.estado = estado;
+    }
+
+    public Caja getCaja() {
+        return caja;
+    }
+
+    public void setCaja(Caja caja) {
+        this.caja = caja;
+    }
+
+    public void agrega_item(String isbn) {
+        Libro a = Catalogo.getLibros().get(isbn);
+
+        if(a==null){
+            System.out.println("Libro no encontrado");
+        }
+        else{
+            productos.add(a);
+        }
+    }
+
+    public void elimina_item(String isbn) {
+        Libro a = Catalogo.getLibros().get(isbn);
+        if(a==null){
+            System.out.println("Libro no encontrado");
+        }
+        else{
+            productos.remove(a);
+        }
+    }
+
+    private void calcular_subtotal(){
+        double aux=0;
+        if(productos.size()>0){
+            for(Libro a:productos){
+                aux+=a.getPrecio();
+            }
+        }
+        subtotal=aux;
+    }
+
+    public void finalizar_venta(){
+        if(!productos.isEmpty()) {
+            calcular_subtotal();
+            aplicar_descuento();
+            estado = Estado_venta.COMPLETADO;
+            caja.actualizarCaja(this);
+        }
+    }
+    public void aplicar_descuento(){};
+
+    public void anular_venta(){
+        if(estado==Estado_venta.ANULADO){
+            System.out.println("Esta venta ya fue anulada");
+            return;
+        }
+        if(estado==Estado_venta.EN_PROCESO){
+            System.out.println("Esta venta aun no fue completada");
+            return;
+        }
+
+        estado=Estado_venta.ANULADO;
+        caja.actualizarCaja(this);
+        System.out.println("Venta anulada");
+    };
+
+    @Override
+    public String toString() {
+        String lista_productos = "";
+        for (Libro libro : productos) {
+            lista_productos += " - " + libro.getTitulo() + " ($" + libro.getPrecio() + ")\n";
+        }
+
+        return "-------------------------" +
+                "id_venta: " + id_venta + "\n"+
+                ", productos:\n" + lista_productos +"\n"+
+                ", hora_y_fecha:" + hora_y_fecha +"\n"+
+                ", subtotal: $" + subtotal +"\n"+
+                ", total: $" + total +"\n"+
+                ", medio:" + medio+"\n"+
+                "-------------------------";
+    }
+}
